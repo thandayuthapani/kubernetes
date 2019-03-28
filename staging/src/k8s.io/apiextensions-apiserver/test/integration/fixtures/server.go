@@ -19,6 +19,8 @@ package fixtures
 import (
 	"io/ioutil"
 	"os"
+	"fmt"
+	"time"
 	"strings"
 
 	"github.com/pborman/uuid"
@@ -50,11 +52,8 @@ current-context: default-context
 users:
 - name: test
   user:
-    password: test
-    username: test
 `)
 	fakeKubeConfig.Close()
-
 	s, err := servertesting.StartTestServer(t, nil, []string{
 		"--etcd-prefix", uuid.New(),
 		"--etcd-servers", strings.Join(IntegrationEtcdServers(), ","),
@@ -80,6 +79,7 @@ users:
 // StartDefaultServerWithClients starts a test server and returns clients for it.
 func StartDefaultServerWithClients(t servertesting.Logger) (func(), clientset.Interface, dynamic.Interface, error) {
 	tearDown, config, _, err := StartDefaultServer(t)
+//	fmt.Println("*****",config.Host)
 	if err != nil {
 		return nil, nil, nil, err
 	}
@@ -96,6 +96,8 @@ func StartDefaultServerWithClients(t servertesting.Logger) (func(), clientset.In
 		return nil, nil, nil, err
 	}
 
+	fmt.Println("Entering Wait")
+	time.Sleep(1*time.Minute)
 	return tearDown, apiExtensionsClient, dynamicClient, nil
 }
 

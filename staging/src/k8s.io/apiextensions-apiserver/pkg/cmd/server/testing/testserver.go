@@ -21,8 +21,8 @@ import (
 	"io/ioutil"
 	"net"
 	"os"
-	"path"
-	"runtime"
+//	"path"
+//	"runtime"
 	"time"
 
 	"github.com/spf13/pflag"
@@ -105,6 +105,7 @@ func StartTestServer(t Logger, instanceOptions *TestServerInstanceOptions, custo
 	if err != nil {
 		return result, fmt.Errorf("failed to create temp dir: %v", err)
 	}
+	fmt.Println("****CERT DIR",result.TmpDir)
 
 	fs := pflag.NewFlagSet("test", pflag.PanicOnError)
 
@@ -115,14 +116,14 @@ func StartTestServer(t Logger, instanceOptions *TestServerInstanceOptions, custo
 	if err != nil {
 		return result, fmt.Errorf("failed to create listener: %v", err)
 	}
-	s.RecommendedOptions.SecureServing.ServerCert.CertDirectory = result.TmpDir
+	//s.RecommendedOptions.SecureServing.ServerCert.CertDirectory = result.TmpDir
 	s.RecommendedOptions.SecureServing.ExternalAddress = s.RecommendedOptions.SecureServing.Listener.Addr().(*net.TCPAddr).IP // use listener addr although it is a loopback device
 
-	_, thisFile, _, ok := runtime.Caller(0)
-	if !ok {
-		return result, fmt.Errorf("failed to get current file")
-	}
-	s.RecommendedOptions.SecureServing.ServerCert.FixtureDirectory = path.Join(path.Dir(thisFile), "testdata")
+	//_, thisFile, _, ok := runtime.Caller(0)
+	//if !ok {
+	//	return result, fmt.Errorf("failed to get current file")
+	//}
+	//s.RecommendedOptions.SecureServing.ServerCert.FixtureDirectory = path.Join(path.Dir(thisFile), "testdata")
 
 	if storageConfig != nil {
 		s.RecommendedOptions.Etcd.StorageConfig = *storageConfig
@@ -155,17 +156,24 @@ func StartTestServer(t Logger, instanceOptions *TestServerInstanceOptions, custo
 			t.Errorf("apiextensions-apiserver failed run: %v", err)
 		}
 	}(stopCh)
+	fmt.Println("API Server ADDR",server.GenericAPIServer.ExternalAddress)
 
 	t.Logf("Waiting for /healthz to be ok...")
 
+	fmt.Println("**&&",server.GenericAPIServer.LoopbackClientConfig.CAFile)
+	fmt.Println("**&&",server.GenericAPIServer.LoopbackClientConfig.ContentConfig.NegotiatedSerializer)
 	client, err := kubernetes.NewForConfig(server.GenericAPIServer.LoopbackClientConfig)
+	fmt.Println("****",server.GenericAPIServer.LoopbackClientConfig.CAFile)
 	if err != nil {
 		return result, fmt.Errorf("failed to create a client: %v", err)
 	}
+	client.SchedulingV1alpha1().RESTClient().Post()
 	err = wait.Poll(100*time.Millisecond, 30*time.Second, func() (bool, error) {
 		result := client.CoreV1().RESTClient().Get().AbsPath("/healthz").Do()
 		status := 0
 		result.StatusCode(&status)
+		fmt.Println("*****",client.CoreV1().RESTClient().Get())
+		fmt.Println("****",status)
 		if status == 200 {
 			return true, nil
 		}

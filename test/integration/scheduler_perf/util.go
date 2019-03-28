@@ -23,6 +23,7 @@ import (
 	_ "k8s.io/kubernetes/pkg/scheduler/algorithmprovider"
 	"k8s.io/kubernetes/pkg/scheduler/factory"
 	"k8s.io/kubernetes/test/integration/util"
+	"fmt"
 )
 
 // mustSetupScheduler starts the following components:
@@ -34,6 +35,7 @@ import (
 //   - client rate limit is set to 5000.
 func mustSetupScheduler() (factory.Configurator, util.ShutdownFunc) {
 	apiURL, apiShutdown := util.StartApiserver()
+	fmt.Println("URL",apiURL)
 	clientSet := clientset.NewForConfigOrDie(&restclient.Config{
 		Host:          apiURL,
 		ContentConfig: restclient.ContentConfig{GroupVersion: &schema.GroupVersion{Group: "", Version: "v1"}},

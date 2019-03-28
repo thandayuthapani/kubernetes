@@ -83,6 +83,23 @@ func (o *CustomResourceDefinitionsServerOptions) Complete() error {
 	return nil
 }
 
+type fakeLocalhost443Listener struct{}
+
+func (fakeLocalhost443Listener) Accept() (net.Conn, error) {
+	return nil, nil
+}
+
+func (fakeLocalhost443Listener) Close() error {
+	return nil
+}
+
+func (fakeLocalhost443Listener) Addr() net.Addr {
+	return &net.TCPAddr{
+		IP:   net.IPv4(127, 0, 0, 1),
+		Port: 443,
+	}
+}
+
 // Config returns an apiextensions-apiserver configuration.
 func (o CustomResourceDefinitionsServerOptions) Config() (*apiserver.Config, error) {
 	// TODO have a "real" external address
@@ -97,7 +114,9 @@ func (o CustomResourceDefinitionsServerOptions) Config() (*apiserver.Config, err
 	if err := o.APIEnablement.ApplyTo(&serverConfig.Config, apiserver.DefaultAPIResourceConfigSource(), apiserver.Scheme); err != nil {
 		return nil, err
 	}
-
+	
+	serverConfig.SecureServing = &genericapiserver.SecureServingInfo{Listener:fakeLocalhost443Listener{}}
+	
 	config := &apiserver.Config{
 		GenericConfig: serverConfig,
 		ExtraConfig: apiserver.ExtraConfig{

@@ -85,19 +85,19 @@ func TestSchedule100Node3KPods(t *testing.T) {
 	}
 }
 
-// TestSchedule2000Node60KPods schedules 60k pods on 2000 nodes.
-// This test won't fit in normal 10 minutes time window.
-// func TestSchedule2000Node60KPods(t *testing.T) {
-// 	if testing.Short() {
-// 		t.Skip("Skipping because we want to run short tests")
-// 	}
-// 	config := defaultSchedulerBenchmarkConfig(2000, 60000)
-// 	if min := schedulePods(config); min < threshold60K {
-// 		t.Errorf("To small pod scheduling throughput for 60k pods. Expected %v got %v", threshold60K, min)
-// 	} else {
-// 		fmt.Printf("Minimal observed throughput for 60k pod test: %v\n", min)
-// 	}
-// }
+ //TestSchedule2000Node60KPods schedules 60k pods on 2000 nodes.
+ //This test won't fit in normal 10 minutes time window.
+ //func TestSchedule2000Node60KPods(t *testing.T) {
+ //	if testing.Short() {
+ //		t.Skip("Skipping because we want to run short tests")
+ //	}
+ //	config := getBaseConfig(2000, 60000)
+ //	if min := schedulePods(config); min < threshold60K {
+ //		t.Errorf("To small pod scheduling throughput for 60k pods. Expected %v got %v", threshold60K, min)
+ //	} else {
+ //		fmt.Printf("Minimal observed throughput for 60k pod test: %v\n", min)
+ //	}
+ //}
 
 // testConfig contains the some input parameters needed for running test-suite
 type testConfig struct {
@@ -112,6 +112,8 @@ type testConfig struct {
 // getBaseConfig returns baseConfig after initializing number of nodes and pods.
 func getBaseConfig(nodes int, pods int) *testConfig {
 	schedulerConfigFactory, destroyFunc := mustSetupScheduler()
+	fmt.Println("EnterWait")
+	time.Sleep(5*time.Minute)
 	return &testConfig{
 		schedulerSupportFunctions: schedulerConfigFactory,
 		destroyFunc:               destroyFunc,

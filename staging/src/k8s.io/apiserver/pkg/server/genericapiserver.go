@@ -325,8 +325,19 @@ func (s preparedGenericAPIServer) NonBlockingRun(stopCh <-chan struct{}) error {
 
 // installAPIResources is a private method for installing the REST storage backing each api groupversionresource
 func (s *GenericAPIServer) installAPIResources(apiPrefix string, apiGroupInfo *APIGroupInfo) error {
+	//crdVersion := schema.GroupVersion{
+	//	Group: "apiextensions.k8s.io",
+	//	Version: "v1beta1",
+	//}
+	//fmt.Println("****",reflect.TypeOf(apiGroupInfo.PrioritizedVersions),reflect.TypeOf(crdVersion))
+	//if apiPrefix == "/apis"{
+	//	apiGroupInfo.PrioritizedVersions = append(apiGroupInfo.PrioritizedVersions,crdVersion)
+	//}
+
+	fmt.Println("!!!",apiGroupInfo.MetaGroupVersion)
 	openAPIGroupModels, err := s.getOpenAPIModelsForGroup(apiPrefix, apiGroupInfo)
 	if err != nil {
+		fmt.Println("!!!!Error while adding API")
 		return fmt.Errorf("unable to get openapi models for group %v: %v", apiPrefix, err)
 	}
 	for _, groupVersion := range apiGroupInfo.PrioritizedVersions {
@@ -458,9 +469,11 @@ func NewDefaultAPIGroupInfo(group string, scheme *runtime.Scheme, parameterCodec
 // getOpenAPIModelsForGroup is a private method for getting the OpenAPI Schemas for each  api group
 func (s *GenericAPIServer) getOpenAPIModelsForGroup(apiPrefix string, apiGroupInfo *APIGroupInfo) (openapiproto.Models, error) {
 	if s.openAPIConfig == nil {
+		fmt.Println("return nill")
 		return nil, nil
 	}
 	pathsToIgnore := openapiutil.NewTrie(s.openAPIConfig.IgnorePrefixes)
+	fmt.Println("!!!",s.openAPIConfig.IgnorePrefixes)
 	// Get the canonical names of every resource we need to build in this api group
 	resourceNames := make([]string, 0)
 	for _, groupVersion := range apiGroupInfo.PrioritizedVersions {

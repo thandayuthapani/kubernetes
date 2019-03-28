@@ -111,6 +111,10 @@ func NewScheme() *Scheme {
 	return s
 }
 
+func (s *Scheme) Print(){
+	fmt.Println(s.observedVersions)
+}
+
 // nameFunc returns the name of the type that we wish to use to determine when two types attempt
 // a conversion. Defaults to the go name of the type if the type is not registered.
 func (s *Scheme) nameFunc(t reflect.Type) string {
@@ -713,7 +717,9 @@ func (s *Scheme) PreferredVersionAllGroups() []schema.GroupVersion {
 
 // IsGroupRegistered returns true if types for the group have been registered with the scheme
 func (s *Scheme) IsGroupRegistered(group string) bool {
+	fmt.Println(s.observedVersions)
 	for _, observedVersion := range s.observedVersions {
+		//fmt.Println("@@@",observedVersion)
 		if observedVersion.Group == group {
 			return true
 		}
@@ -733,6 +739,7 @@ func (s *Scheme) IsVersionRegistered(version schema.GroupVersion) bool {
 }
 
 func (s *Scheme) addObservedVersion(version schema.GroupVersion) {
+
 	if len(version.Version) == 0 || version.Version == APIVersionInternal {
 		return
 	}
@@ -741,7 +748,7 @@ func (s *Scheme) addObservedVersion(version schema.GroupVersion) {
 			return
 		}
 	}
-
+	fmt.Println("!!addObserved ",version)
 	s.observedVersions = append(s.observedVersions, version)
 }
 

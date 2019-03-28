@@ -28,6 +28,7 @@ import (
 	"k8s.io/klog"
 
 	apps "k8s.io/api/apps/v1beta1"
+	apiextension "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
 	auditreg "k8s.io/api/auditregistration/v1alpha1"
 	autoscaling "k8s.io/api/autoscaling/v1"
 	certificates "k8s.io/api/certificates/v1beta1"
@@ -61,6 +62,7 @@ import (
 	kubeletclient "k8s.io/kubernetes/pkg/kubelet/client"
 	"k8s.io/kubernetes/pkg/master"
 	"k8s.io/kubernetes/pkg/version"
+	"fmt"
 )
 
 // Config is a struct of configuration directives for NewMasterComponents.
@@ -147,6 +149,7 @@ func startMasterOrDie(masterConfig *master.Config, incomingServer *httptest.Serv
 
 	// set the loopback client config
 	if masterConfig.GenericConfig.LoopbackClientConfig == nil {
+		fmt.Println("Sett LoopBackClient")
 		masterConfig.GenericConfig.LoopbackClientConfig = &restclient.Config{QPS: 50, Burst: 100, ContentConfig: restclient.ContentConfig{NegotiatedSerializer: legacyscheme.Codecs}}
 	}
 	masterConfig.GenericConfig.LoopbackClientConfig.Host = s.URL
@@ -256,6 +259,9 @@ func NewMasterConfig() *master.Config {
 	resourceEncoding.SetVersionEncoding(storage.GroupName, *testapi.Storage.GroupVersion(), schema.GroupVersion{Group: storage.GroupName, Version: runtime.APIVersionInternal})
 	resourceEncoding.SetResourceEncoding(schema.GroupResource{Group: storage.GroupName, Resource: "volumeattachments"}, schema.GroupVersion{Group: storage.GroupName, Version: "v1beta1"}, schema.GroupVersion{Group: storage.GroupName, Version: runtime.APIVersionInternal})
 
+	resourceEncoding.SetVersionEncoding(apiextension.GroupName, apiextension.SchemeGroupVersion, schema.GroupVersion{Group: apiextension.GroupName, Version: runtime.APIVersionInternal})
+	resourceEncoding.SetResourceEncoding(schema.GroupResource{Group: apiextension.GroupName, Resource: "*"}, schema.GroupVersion{Group: apiextension.GroupName, Version: "v1beta1"}, schema.GroupVersion{Group: apiextension.GroupName, Version: runtime.APIVersionInternal})
+
 	storageFactory := serverstorage.NewDefaultStorageFactory(etcdOptions.StorageConfig, runtime.ContentTypeJSON, ns, resourceEncoding, master.DefaultAPIResourceConfigSource(), nil)
 	storageFactory.SetSerializer(
 		schema.GroupResource{Group: v1.GroupName, Resource: serverstorage.AllResources},
@@ -295,6 +301,10 @@ func NewMasterConfig() *master.Config {
 		ns)
 	storageFactory.SetSerializer(
 		schema.GroupResource{Group: auditreg.GroupName, Resource: serverstorage.AllResources},
+		"",
+		ns)
+	storageFactory.SetSerializer(
+		schema.GroupResource{Group: apiextension.GroupName, Resource: serverstorage.AllResources},
 		"",
 		ns)
 

@@ -302,19 +302,19 @@ func (s *SecureServingOptions) MaybeDefaultWithSelfSignedCerts(publicAddress str
 		if cert, key, err := certutil.GenerateSelfSignedCertKeyWithFixtures(publicAddress, alternateIPs, alternateDNS, s.ServerCert.FixtureDirectory); err != nil {
 			return fmt.Errorf("unable to generate self signed cert: %v", err)
 		} else if len(keyCert.CertFile) > 0 && len(keyCert.KeyFile) > 0 {
-			if err := certutil.WriteCert(keyCert.CertFile, cert); err != nil {
-				return err
-			}
-			if err := certutil.WriteKey(keyCert.KeyFile, key); err != nil {
-				return err
-			}
+			//if err := certutil.WriteCert(keyCert.CertFile, cert); err != nil {
+			//	return err
+			//}
+			//if err := certutil.WriteKey(keyCert.KeyFile, key); err != nil {
+			//	return err
+			//}
 			klog.Infof("Generated self-signed cert (%s, %s)", keyCert.CertFile, keyCert.KeyFile)
 		} else {
-			tlsCert, err := tls.X509KeyPair(cert, key)
+			_, err := tls.X509KeyPair(cert, key)
 			if err != nil {
 				return fmt.Errorf("unable to generate self signed cert: %v", err)
 			}
-			s.ServerCert.GeneratedCert = &tlsCert
+			//s.ServerCert.GeneratedCert = &tlsCert
 			klog.Infof("Generated self-signed cert in-memory")
 		}
 	}

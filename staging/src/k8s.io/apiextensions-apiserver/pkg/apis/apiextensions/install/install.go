@@ -18,6 +18,7 @@ package install
 
 import (
 	"k8s.io/apiextensions-apiserver/pkg/apis/apiextensions"
+	"fmt"
 	"k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
 	"k8s.io/apimachinery/pkg/runtime"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
@@ -25,6 +26,7 @@ import (
 
 // Install registers the API group and adds types to a scheme
 func Install(scheme *runtime.Scheme) {
+	fmt.Println("!!!Inside")
 	utilruntime.Must(apiextensions.AddToScheme(scheme))
 	utilruntime.Must(v1beta1.AddToScheme(scheme))
 	utilruntime.Must(scheme.SetVersionPriority(v1beta1.SchemeGroupVersion))
